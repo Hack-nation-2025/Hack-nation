@@ -1,30 +1,24 @@
-# Real-Time Transport Accessibility App
+# FailProof LLM – Stress-test AI with edge cases & malformed inputs
 
-A real-time transport notification app designed to ensure users are informed about important travel updates.
+A stress-testing framework that bombards LLMs and AI agents with edge cases, malformed inputs, and adversarial prompts to identify vulnerabilities before production.
 
 ## Purpose
 
-This app provides critical transport notifications for people who miss announcements due to:
-- Wearing noise-cancelling headphones/AirPods
-- Being deaf or hard of hearing
-- Distractions
+This framework helps enterprises test AI systems against real-world failure scenarios including:
+- Malformed JSON, mixed languages, and special characters
+- Prompt injections and contradictory instructions
+- Very long inputs and Unicode edge cases
+- Domain-specific adversarial inputs
 
 ## Features
 
-- **Real-time notifications** for transport updates including:
-  - Gate changes at airports
-  - Bus route or final destination changes
-  - Train delays and platform changes
-  - Service disruptions
-
-- **Accessible alerts** delivered through:
-  - Visual notifications
-  - Text-based updates
-  - Voice synthesis using ElevenLabs APIs
+- **Test Case Generator** – Creates diverse adversarial inputs and edge cases
+- **Automated Stress Runner** – Feeds test cases to any LLM via API and records failures
+- **Failure Analysis Dashboard** – Classifies and visualizes failure modes with actionable reports
 
 ## Technology
 
-Built using ElevenLabs APIs to provide high-quality text-to-speech capabilities.
+Built using Python with support for OpenAI, Anthropic, Hugging Face, and other LLM APIs.
 
 ## Quick Start
 ### Prerequisites
@@ -45,11 +39,12 @@ Built using ElevenLabs APIs to provide high-quality text-to-speech capabilities.
 
 3. **Set up your environment variables:**
    ```bash
-   # Create a .env file with your ElevenLabs API key
-   echo "ELEVENLABS_API_KEY=your_api_key_here" > .env
+   # Create a .env file with your API keys
+   echo "OPENAI_API_KEY=your_openai_key_here" > .env
+   echo "ANTHROPIC_API_KEY=your_anthropic_key_here" >> .env
    ```
 
-4. **Run the example:**
+4. **Run the stress test:**
    ```bash
    python example.py
    ```
