@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { TestGenerator } from "@/components/generator/TestGenerator";
 import { StressRunner } from "@/components/runner/StressRunner";
@@ -6,6 +6,12 @@ import { FailureAnalysis } from "@/components/analysis/FailureAnalysis";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("generator");
+  
+  // State for categories, selected by the Generator, used by the Runner
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  
+  // NEW: State for the results, set by the Runner, used by the Analysis
+  const [testResults, setTestResults] = useState<any>(null);
 
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
@@ -14,13 +20,23 @@ const Index = () => {
   const renderContent = () => {
     switch (activeSection) {
       case "generator":
-        return <TestGenerator />;
+        return <TestGenerator 
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                />;
       case "runner":
-        return <StressRunner />;
+        return <StressRunner 
+                  selectedCategories={selectedCategories} 
+                  setTestResults={setTestResults} 
+                />;
       case "analysis":
-        return <FailureAnalysis />;
+        // Pass the results data down to the analysis component
+        return <FailureAnalysis testResults={testResults} />;
       default:
-        return <TestGenerator />;
+        return <TestGenerator 
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                />;
     }
   };
 
