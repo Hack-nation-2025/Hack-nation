@@ -66,6 +66,8 @@ transcription = elevenlabs.speech_to_text.convert(
 
 print(transcription.text)
 
+
+### * SEND TO CHAT GPT FOR ANALYSIS
 gpt_response = gpt.responses.create(
     model='gpt-5-nano',
     input="Yes or no answer, does the following sentence contain information someone using transportation services like trains, plane, subway, ... should need to hear. If yes, output the important part(s) of the sentence on a separate line.\n" + transcription.text
