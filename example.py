@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from elevenlabs.client import ElevenLabs
 from elevenlabs import play
+from io import BytesIO
+import requests
 import os
 
 
@@ -10,11 +12,32 @@ elevenlabs = ElevenLabs(
     api_key=os.getenv("ELEVENLABS_API_KEY"),
 )
 
-audio = elevenlabs.text_to_speech.convert(
-    text="The first move is what sets everything in motion.",
-    voice_id="JBFqnCBsd6RMkjVDRZzb",
-    model_id="eleven_multilingual_v2",
-    output_format="mp3_44100_128",
+# audio = elevenlabs.text_to_speech.convert(
+#     text="The first move is what sets everything in motion.",
+#     voice_id="JBFqnCBsd6RMkjVDRZzb",
+#     model_id="eleven_multilingual_v2",
+#     output_format="mp3_44100_128",
+# )
+
+# play(audio)
+
+audio_url = (
+
+    "https://storage.googleapis.com/eleven-public-cdn/audio/marketing/nicole.mp3"
+
 )
 
-play(audio)
+response = requests.get(audio_url)
+
+audio = BytesIO(response.content)
+
+
+transcription = elevenlabs.speech_to_text.convert(
+    file=audio,
+    model_id="scribe_v1", # Model to use, for now only "scribe_v1" is supported
+    tag_audio_events=True, # Tag audio events like laughter, applause, etc.
+    language_code="eng", # Language of the audio file. If set to None, the model will detect the language automatically.
+    diarize=True, # Whether to annotate who is speaking
+)
+
+print(transcription.text)
