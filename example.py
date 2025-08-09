@@ -12,24 +12,26 @@ elevenlabs = ElevenLabs(
     api_key=os.getenv("ELEVENLABS_API_KEY"),
 )
 
-# audio = elevenlabs.text_to_speech.convert(
-#     text="The first move is what sets everything in motion.",
-#     voice_id="JBFqnCBsd6RMkjVDRZzb",
-#     model_id="eleven_multilingual_v2",
-#     output_format="mp3_44100_128",
-# )
+audio = elevenlabs.text_to_speech.convert(
+    text="The first move is what sets everything in motion.",
+    voice_id="JBFqnCBsd6RMkjVDRZzb",
+    model_id="eleven_multilingual_v2",
+    output_format="mp3_44100_128",
+)
 
 # play(audio)
 
-audio_url = (
 
-    "https://storage.googleapis.com/eleven-public-cdn/audio/marketing/nicole.mp3"
 
-)
 
-response = requests.get(audio_url)
+# audio_url = (
+#     "https://storage.googleapis.com/eleven-public-cdn/audio/marketing/nicole.mp3"
+# )
 
-audio = BytesIO(response.content)
+# response = requests.get(audio_url)
+# audio = BytesIO(response.content)
+
+audio = BytesIO( b"".join(audio) )
 
 
 transcription = elevenlabs.speech_to_text.convert(
