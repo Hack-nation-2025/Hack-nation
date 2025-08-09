@@ -16,6 +16,16 @@ import {
   RefreshCw
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation } from "@tanstack/react-query";
+
+
+const fetchCategories = async () => {
+  const response = await fetch("http://localhost:5001/categories");
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
 
 export function TestGenerator() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -24,14 +34,10 @@ export function TestGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
-  const testCategories = [
-    { id: "prompt-injection", label: "Prompt Injection", description: "Attempts to override system instructions" },
-    { id: "malformed-json", label: "Malformed JSON", description: "Invalid JSON structures and syntax errors" },
-    { id: "unicode-attacks", label: "Unicode Attacks", description: "Special characters and encoding exploits" },
-    { id: "long-inputs", label: "Long Inputs", description: "Extremely long text to test limits" },
-    { id: "mixed-languages", label: "Mixed Languages", description: "Multiple languages in single input" },
-    { id: "contradictory", label: "Contradictory Instructions", description: "Conflicting commands and requests" }
-  ];
+  const { data: testCategories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['testCategories'],
+    queryFn: fetchCategories,
+  });
 
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev => 
