@@ -1,0 +1,130 @@
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { 
+  Activity, 
+  Zap, 
+  AlertTriangle,
+  Settings,
+  Play,
+  Pause,
+  RotateCcw,
+  ChevronRight
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  activeSection: string;
+  onSectionChange: (section: string) => void;
+}
+
+export function DashboardLayout({ children, activeSection, onSectionChange }: DashboardLayoutProps) {
+
+  const sections = [
+    { id: "generator", label: "Test Generator", icon: Zap },
+    { id: "runner", label: "Stress Runner", icon: Activity },
+    { id: "analysis", label: "Analysis", icon: AlertTriangle },
+  ];
+
+  const currentIndex = sections.findIndex(s => s.id === activeSection);
+  const nextSection = sections[currentIndex + 1];
+
+  const handleNext = () => {
+    if (nextSection) {
+      onSectionChange(nextSection.id);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Cyber Grid Background */}
+      <div className="fixed inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(330, 100%, 70%, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(330, 100%, 70%, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px'
+        }} />
+      </div>
+      
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/95">
+        <div className="flex h-16 items-center justify-between px-6">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-primary animate-neon-pulse">
+                <Zap className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-bold tracking-tight bg-gradient-cyber bg-clip-text text-transparent animate-cyber-flicker">
+                FailProof LLM
+              </h1>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10 hover:shadow-primary">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="text-accent hover:text-accent hover:bg-accent/10">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex relative">
+        {/* Cyber Sidebar Navigation */}
+        <nav className="w-64 border-r border-border/50 bg-card/40 backdrop-blur-lg relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-accent/5" />
+          <div className="relative z-10 p-4">
+            <div className="space-y-2">
+              {sections.map((section) => {
+                const Icon = section.icon;
+                const isActive = activeSection === section.id;
+                
+                return (
+                  <button
+                    key={section.id}
+                    onClick={() => onSectionChange(section.id)}
+                    className={cn(
+                      "w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300",
+                      isActive
+                        ? "bg-gradient-primary text-primary-foreground shadow-primary border border-primary/50"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent hover:border-accent/30"
+                    )}
+                  >
+                    <Icon className={cn("h-4 w-4", isActive && "animate-pulse-glow")} />
+                    <span className="flex-1 text-left">{section.label}</span>
+                    {isActive && <div className="h-2 w-2 rounded-full bg-accent animate-pulse-glow" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </nav>
+
+        {/* Main Content */}
+        <main className="flex-1 relative px-8 py-8">
+          {children}
+          
+          {/* Next Button */}
+          {nextSection && (
+            <div className="fixed bottom-8 right-8 z-20">
+              <Button
+                onClick={handleNext}
+                size="lg"
+                className="bg-gradient-secondary shadow-secondary border border-secondary/50 hover:shadow-accent gap-3 px-6 py-3"
+              >
+                <span className="font-medium">Next: {nextSection.label}</span>
+                <ChevronRight className="h-5 w-5 animate-pulse-glow" />
+              </Button>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
