@@ -26,13 +26,9 @@ export function TestGenerator() {
     label: "Malformed JSON",
     description: "Invalid JSON structures and syntax errors"
   }, {
-    id: "unicode-attacks",
-    label: "Unicode Attacks",
-    description: "Special characters and encoding exploits"
-  }, {
-    id: "long-inputs",
-    label: "Long Inputs",
-    description: "Extremely long text to test limits"
+    id: "sentence-relationship",
+    label: "Sentence Relationship",
+    description: "Two sentences where LLM determines if second relates to first"
   }, {
     id: "mixed-languages",
     label: "Mixed Languages",
