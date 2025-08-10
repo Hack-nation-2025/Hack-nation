@@ -17,8 +17,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-
-
 interface TestResult {
   id: string;
   input: string;
@@ -28,7 +26,21 @@ interface TestResult {
   errorType?: string;
 }
 
-export function CombinedTestingInterface() {
+interface StressTestSummary {
+  total_tests: number;
+  successful_tests: number;
+  failed_tests: number;
+  failure_rate: number;
+  total_duration: number;
+  average_response_time: number;
+  category_breakdown: Record<string, { total: number; success: number; failed: number }>;
+}
+
+interface CombinedTestingInterfaceProps {
+  onStressTestComplete: (summary: StressTestSummary) => void;
+}
+
+export function CombinedTestingInterface({ onStressTestComplete }: CombinedTestingInterfaceProps) {
     const { toast } = useToast();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -40,6 +52,7 @@ export function CombinedTestingInterface() {
   const [progress, setProgress] = useState(0);
   const [currentTest, setCurrentTest] = useState(0);
   const [results, setResults] = useState<TestResult[]>([]);
+  const [stressTestSummary, setStressTestSummary] = useState<StressTestSummary | null>(null);
 
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev => 
@@ -65,19 +78,19 @@ export function CombinedTestingInterface() {
     }
 
     toast({
-        title: "Sending configuration...",
-        description: "Connecting to the backend.",
+        title: "Starting stress tests...",
+        description: "Running tests against the target LLM.",
     });
 
     try {
-      // --- KEY FRONTEND CHANGES ARE HERE ---
-      const response = await fetch('http://127.0.0.1:5001/run', { // 1. Correct URL for Flask
+      setIsRunning(true);
+      
+      const response = await fetch('http://127.0.0.1:5001/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // 2. Keys must match what the Flask backend expects
           model_url: modelUrl,
           api_key: apiKey,
           categories: selectedCategories,
@@ -92,15 +105,22 @@ export function CombinedTestingInterface() {
       }
 
       console.log("Backend Response:", responseData);
-      toast({
-        title: "Success!",
-        description: "Backend confirmed receipt of the test configuration.",
-        variant: "default",
-      });
       
-      // Now you can start your frontend simulation
-      setIsRunning(true);
-      // ... (your existing setInterval logic for the progress bar)
+      // Extract the stress test summary
+      if (responseData.summary) {
+        setStressTestSummary(responseData.summary);
+        
+        // Call the callback to pass data to parent component
+        onStressTestComplete(responseData.summary);
+        
+        toast({
+          title: "Tests Completed!",
+          description: `Failure rate: ${responseData.summary.failure_rate}%`,
+          variant: "default",
+        });
+      }
+      
+      setIsRunning(false);
 
     } catch (error) {
       console.error("Failed to connect to backend:", error);
@@ -109,6 +129,7 @@ export function CombinedTestingInterface() {
         description: `Could not connect to the backend. Is it running on port 5001?`,
         variant: "destructive",
       });
+      setIsRunning(false);
     }
   };
 
@@ -154,6 +175,7 @@ export function CombinedTestingInterface() {
             setApiKey={setApiKey}
             totalTests={totalTests}
             setTotalTests={setTotalTests}
+            stressTestSummary={stressTestSummary}
           />
         </div>
       </div>

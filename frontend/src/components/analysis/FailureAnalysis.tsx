@@ -17,15 +17,46 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
 
-export function FailureAnalysis() {
-  const failureData = [
-    { name: "Prompt Injection", value: 45, color: "hsl(var(--primary))" },
-    { name: "Malformed JSON", value: 32, color: "hsl(var(--secondary))" },
-    { name: "Unicode Attack", value: 28, color: "hsl(var(--accent))" },
-    { name: "Long Input", value: 19, color: "hsl(330 100% 70%)" },
-    { name: "Mixed Language", value: 15, color: "hsl(270 100% 80%)" }
-  ];
+interface StressTestSummary {
+  total_tests: number;
+  successful_tests: number;
+  failed_tests: number;
+  failure_rate: number;
+  total_duration: number;
+  average_response_time: number;
+  category_breakdown: Record<string, { total: number; success: number; failed: number }>;
+}
 
+interface FailureAnalysisProps {
+  stressTestSummary: StressTestSummary | null;
+}
+
+export function FailureAnalysis({ stressTestSummary }: FailureAnalysisProps) {
+  // Use actual data if available, otherwise fall back to mock data
+  const failureData = stressTestSummary ? 
+    Object.entries(stressTestSummary.category_breakdown).map(([category, stats]) => ({
+      name: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      value: stats.failed,
+      color: "hsl(var(--primary))"
+    })).filter(item => item.value > 0) : [
+      { name: "Prompt Injection", value: 45, color: "hsl(var(--primary))" },
+      { name: "Malformed JSON", value: 32, color: "hsl(var(--secondary))" },
+      { name: "Unicode Attack", value: 28, color: "hsl(var(--accent))" },
+      { name: "Long Input", value: 19, color: "hsl(330 100% 70%)" },
+      { name: "Mixed Language", value: 15, color: "hsl(270 100% 80%)" }
+    ];
+
+  // Generate colors for the pie chart segments
+  const colors = [
+    "hsl(var(--primary))",
+    "hsl(var(--secondary))", 
+    "hsl(var(--accent))",
+    "hsl(330 100% 70%)",
+    "hsl(270 100% 80%)",
+    "hsl(120 100% 70%)",
+    "hsl(60 100% 70%)",
+    "hsl(180 100% 70%)"
+  ];
 
   const criticalFailures = [
     {
@@ -76,7 +107,9 @@ export function FailureAnalysis() {
       <Card className="mb-4">
         <CardContent className="p-6">
           <div className="text-center">
-            <div className="text-4xl font-bold bg-gradient-cyber bg-clip-text text-transparent">2,845</div>
+            <div className="text-4xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
+              {stressTestSummary ? stressTestSummary.total_tests : "2,845"}
+            </div>
             <div className="text-sm text-muted-foreground">Total Test Runs</div>
           </div>
         </CardContent>
@@ -89,7 +122,9 @@ export function FailureAnalysis() {
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <div>
-                <div className="text-2xl font-bold">139</div>
+                <div className="text-2xl font-bold">
+                  {stressTestSummary ? stressTestSummary.failed_tests : "139"}
+                </div>
                 <div className="text-xs text-muted-foreground">Total Failures</div>
               </div>
             </div>
@@ -101,7 +136,9 @@ export function FailureAnalysis() {
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-5 w-5 text-warning" />
               <div>
-                <div className="text-2xl font-bold">23.4%</div>
+                <div className="text-2xl font-bold">
+                  {stressTestSummary ? `${stressTestSummary.failure_rate}%` : "23.4%"}
+                </div>
                 <div className="text-xs text-muted-foreground">Failure Rate</div>
               </div>
             </div>
@@ -125,7 +162,9 @@ export function FailureAnalysis() {
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-warning" />
               <div>
-                <div className="text-2xl font-bold">234ms</div>
+                <div className="text-2xl font-bold">
+                  {stressTestSummary ? `${Math.round(stressTestSummary.average_response_time)}ms` : "234ms"}
+                </div>
                 <div className="text-xs text-muted-foreground">Avg Response Time</div>
               </div>
             </div>
@@ -146,38 +185,46 @@ export function FailureAnalysis() {
               <CardTitle>Failure Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <PieChart>
-                  <Pie
-                    data={failureData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={80}
-                    outerRadius={140}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {failureData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+              {failureData.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <PieChart>
+                      <Pie
+                        data={failureData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={80}
+                        outerRadius={140}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {failureData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-6 space-y-3">
+                    {failureData.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center space-x-2">
+                          <div 
+                            className="h-3 w-3 rounded-full" 
+                            style={{ backgroundColor: colors[index % colors.length] }}
+                          />
+                          <span>{item.name}</span>
+                        </div>
+                        <span className="font-medium">{item.value}</span>
+                      </div>
                     ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-6 space-y-3">
-                {failureData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-2">
-                      <div 
-                        className="h-3 w-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span>{item.name}</span>
-                    </div>
-                    <span className="font-medium">{item.value}</span>
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  {stressTestSummary ? "No failures detected in the test results." : "Run stress tests to see failure distribution."}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
