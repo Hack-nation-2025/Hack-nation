@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { TestGenerator } from "@/components/generator/TestGenerator";
 import { StressRunner } from "@/components/runner/StressRunner";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -103,25 +102,18 @@ export function CombinedTestingInterface() {
   return (
     <div className="space-y-6">
       {/* Top Section: Test Generator and Stress Runner */}
-      <div className="w-full">
-        <ResizablePanelGroup direction="horizontal" className="w-full" style={{ height: 'auto' }}>
-          <ResizablePanel defaultSize={50} minSize={30} className="flex">
-            <div className="pr-4 w-full">
-              <TestGenerator />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={50} minSize={30} className="flex">
-            <div className="pl-4 w-full">
-              <StressRunner 
-                isRunning={isRunning}
-                onStartStop={handleStartStop}
-                totalTests={totalTests}
-                setTotalTests={setTotalTests}
-              />
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+      <div className="w-full grid grid-cols-2 gap-8">
+        <div>
+          <TestGenerator />
+        </div>
+        <div>
+          <StressRunner 
+            isRunning={isRunning}
+            onStartStop={handleStartStop}
+            totalTests={totalTests}
+            setTotalTests={setTotalTests}
+          />
+        </div>
       </div>
 
       {/* Bottom Section: Execution Status and Live Results */}
