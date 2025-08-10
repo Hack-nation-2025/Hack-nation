@@ -12,48 +12,66 @@ import {
   Activity
 } from "lucide-react";
 
-export function MetricsOverview() {
+interface StressTestSummary {
+  total_tests: number;
+  successful_tests: number;
+  failed_tests: number;
+  failure_rate: number;
+  total_duration: number;
+  average_response_time: number;
+  category_breakdown: Record<string, { total: number; success: number; failed: number }>;
+}
+
+interface MetricsOverviewProps {
+  stressTestSummary: StressTestSummary;
+}
+
+export function MetricsOverview({ stressTestSummary }: MetricsOverviewProps) {
   const metrics = [
     {
       title: "Total Tests Run",
-      value: "1,247",
-      change: "+12%",
+      value: stressTestSummary.total_tests.toString(),
+      change: "+0%",
       trend: "up",
       icon: Zap,
       color: "primary"
     },
     {
       title: "Failure Rate",
-      value: "23.4%",
-      change: "-5.2%",
+      value: `${stressTestSummary.failed_tests} (${stressTestSummary.failure_rate}%)`,
+      change: "+0%",
       trend: "down",
       icon: AlertTriangle,
       color: "destructive"
     },
     {
       title: "Success Rate",
-      value: "76.6%",
-      change: "+5.2%",
+      value: `${stressTestSummary.successful_tests} (${100 - stressTestSummary.failure_rate}%)`,
+      change: "+0%",
       trend: "up",
       icon: CheckCircle,
       color: "success"
     },
     {
       title: "Avg Response Time",
-      value: "234ms",
-      change: "+8ms",
+      value: `${Math.round(stressTestSummary.average_response_time)}ms`,
+      change: "+0ms",
       trend: "up",
       icon: Clock,
       color: "warning"
     }
   ];
 
-  const recentFailures = [
-    { type: "Prompt Injection", severity: "High", count: 45 },
-    { type: "Malformed JSON", severity: "Medium", count: 32 },
-    { type: "Unicode Attack", severity: "High", count: 28 },
-    { type: "Long Input", severity: "Low", count: 19 }
-  ];
+  // Convert category breakdown to recent failures format
+  const recentFailures = Object.entries(stressTestSummary.category_breakdown)
+    .map(([category, stats]) => ({
+      type: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      severity: stats.failed > 0 ? (stats.failed / stats.total > 0.5 ? "High" : "Medium") : "Low",
+      count: stats.failed
+    }))
+    .filter(failure => failure.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -110,33 +128,24 @@ export function MetricsOverview() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Activity className="h-5 w-5 text-primary" />
-            <span>Current Test Suite Progress</span>
+            <span>Test Suite Results</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Adversarial Input Tests</span>
-              <span className="font-medium">342/500</span>
-            </div>
-            <Progress value={68} className="h-2" />
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Edge Case Validation</span>
-              <span className="font-medium">89/150</span>
-            </div>
-            <Progress value={59} className="h-2" />
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Malformed Data Tests</span>
-              <span className="font-medium">156/200</span>
-            </div>
-            <Progress value={78} className="h-2" />
-          </div>
+          {Object.entries(stressTestSummary.category_breakdown).map(([category, stats]) => {
+            const successRate = stats.total > 0 ? (stats.success / stats.total) * 100 : 0;
+            const categoryName = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            return (
+              <div key={category} className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{categoryName}</span>
+                  <span className="font-medium">{stats.success}/{stats.total}</span>
+                </div>
+                <Progress value={successRate} className="h-2" />
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

@@ -36,6 +36,7 @@ const Index = () => {
     <DashboardLayout 
       activeSection={activeSection} 
       onSectionChange={handleSectionChange}
+      stressTestSummary={stressTestSummary}
     >
       <div className="w-full h-full">
         {renderContent()}

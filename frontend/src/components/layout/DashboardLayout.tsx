@@ -1,17 +1,32 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { Activity, Zap, AlertTriangle, Settings, Play, Pause, RotateCcw, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface StressTestSummary {
+  total_tests: number;
+  successful_tests: number;
+  failed_tests: number;
+  failure_rate: number;
+  total_duration: number;
+  average_response_time: number;
+  category_breakdown: Record<string, { total: number; success: number; failed: number }>;
+}
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
   activeSection: string;
   onSectionChange: (section: string) => void;
+  stressTestSummary?: StressTestSummary | null;
 }
+
 export function DashboardLayout({
   children,
   activeSection,
-  onSectionChange
+  onSectionChange,
+  stressTestSummary
 }: DashboardLayoutProps) {
   const sections = [{
     id: "testing",
@@ -77,6 +92,13 @@ export function DashboardLayout({
 
       {/* Main Content */}
       <main className="relative px-8 py-8">
+        {/* Metrics Overview - Show when we have test results */}
+        {stressTestSummary && (
+          <div className="mb-8">
+            <MetricsOverview stressTestSummary={stressTestSummary} />
+          </div>
+        )}
+        
         {children}
         
         {/* Next Button */}
