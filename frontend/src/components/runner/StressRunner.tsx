@@ -1,36 +1,36 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, Pause, Square, Settings, Activity, Clock, AlertCircle, CheckCircle, Zap } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
+import { 
+  Settings,
+} from "lucide-react";
+
 interface StressRunnerProps {
   isRunning: boolean;
   onStartStop: () => void;
+
+  modelUrl: string;
+  setModelUrl: Dispatch<SetStateAction<string>>;
+  apiKey: string;
+  setApiKey: Dispatch<SetStateAction<string>>;
   totalTests: number;
-  setTotalTests: (count: number) => void;
+  setTotalTests: Dispatch<SetStateAction<number>>;
 }
-interface TestResult {
-  id: string;
-  input: string;
-  output: string;
-  status: "success" | "failure" | "timeout";
-  responseTime: number;
-  errorType?: string;
-}
+
 export function StressRunner({
-  isRunning,
-  onStartStop,
+  modelUrl,
+  setModelUrl,
+  apiKey,
+  setApiKey,
   totalTests,
-  setTotalTests
+  setTotalTests,
 }: StressRunnerProps) {
-  const [modelUrl, setModelUrl] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  return <div className="space-y-6">
+
+
+  return (
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Stress Test Runner</h2>
@@ -47,18 +47,31 @@ export function StressRunner({
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Configuration</span>
+            <span>LLM Configuration</span>
           </CardTitle>
+           <p className="text-sm text-muted-foreground pt-1">Enter the details for your target model.</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="model-url">Model URL</Label>
-            <Input id="model-url" placeholder="https://api.openai.com/v1/chat/completions" value={modelUrl} onChange={e => setModelUrl(e.target.value)} />
+
+            <Input 
+              id="model-url" 
+              placeholder="https://api.openai.com"
+              value={modelUrl}
+              onChange={(e) => setModelUrl(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="api-key">API Key (Optional)</Label>
-            <Input id="api-key" type="password" placeholder="Enter your API key..." value={apiKey} onChange={e => setApiKey(e.target.value)} />
+            <Input 
+              id="api-key" 
+              type="password"
+              placeholder="Enter your API key..."
+              value={apiKey} 
+              onChange={(e) => setApiKey(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
@@ -67,18 +80,6 @@ export function StressRunner({
           </div>
         </CardContent>
       </Card>
-
-      {/* Run Tests Button */}
-      <div className="w-full flex justify-center">
-        <Button onClick={onStartStop} variant={isRunning ? "destructive" : "secondary"} size="lg" className="w-full max-w-4xl gap-2 shadow-primary hover:shadow-primary">
-          {isRunning ? <>
-              <Pause className="h-4 w-4" />
-              Stop Tests
-            </> : <>
-              <Play className="h-4 w-4" />
-              Run Stress Tests
-            </>}
-        </Button>
-      </div>
-    </div>;
+    </div>
+  );
 }

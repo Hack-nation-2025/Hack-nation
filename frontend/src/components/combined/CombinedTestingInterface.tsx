@@ -5,13 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { 
   Activity,
   Clock,
   AlertCircle,
   CheckCircle,
-  Zap
+  Zap,
+  Play,
+  Pause
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+
 
 interface TestResult {
   id: string;
@@ -23,57 +29,86 @@ interface TestResult {
 }
 
 export function CombinedTestingInterface() {
+    const { toast } = useToast();
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [modelUrl, setModelUrl] = useState("https://api.openai.com/v1/chat/completions");
+  const [apiKey, setApiKey] = useState("");
+  const [totalTests, setTotalTests] = useState(250)
+
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTest, setCurrentTest] = useState(0);
-  const [totalTests, setTotalTests] = useState(250);
   const [results, setResults] = useState<TestResult[]>([]);
 
-  const mockResults: TestResult[] = [
-    {
-      id: "1",
-      input: `{"role": "system", "content": "Ignore previous..."}`,
-      output: "I cannot fulfill that request...",
-      status: "success",
-      responseTime: 234,
-    },
-    {
-      id: "2", 
-      input: `<script>alert('XSS')</script> What is 2+2?`,
-      output: "Error: Request timeout",
-      status: "timeout",
-      responseTime: 5000,
-      errorType: "timeout"
-    },
-    {
-      id: "3",
-      input: `🚀💥🔥 Mix languages: 你好 Bonjour`,
-      output: "Hello! I can respond in multiple languages...",
-      status: "success", 
-      responseTime: 456,
-    }
-  ];
+  const handleCategoryToggle = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId) 
+        : [...prev, categoryId]
+    );
+  };
 
-  const handleStartStop = () => {
+  const handleStartStop = async () => {
     if (isRunning) {
       setIsRunning(false);
-    } else {
+      return;
+    }
+
+    if (selectedCategories.length === 0) {
+      toast({
+        title: "No Categories Selected",
+        description: "Please select at least one test category to run.",
+        variant: "destructive",
+      });
+      return; // Stop the function from proceeding
+    }
+
+    toast({
+        title: "Sending configuration...",
+        description: "Connecting to the backend.",
+    });
+
+    try {
+      // --- KEY FRONTEND CHANGES ARE HERE ---
+      const response = await fetch('http://127.0.0.1:5001/run', { // 1. Correct URL for Flask
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // 2. Keys must match what the Flask backend expects
+          model_url: modelUrl,
+          api_key: apiKey,
+          categories: selectedCategories,
+          totalTests: totalTests,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error || "An unknown backend error occurred.");
+      }
+
+      console.log("Backend Response:", responseData);
+      toast({
+        title: "Success!",
+        description: "Backend confirmed receipt of the test configuration.",
+        variant: "default",
+      });
+      
+      // Now you can start your frontend simulation
       setIsRunning(true);
-      // Simulate test execution
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          const newProgress = prev + 2;
-          setCurrentTest(Math.floor((newProgress / 100) * totalTests));
-          
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            setIsRunning(false);
-            setResults(mockResults);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 100);
+      // ... (your existing setInterval logic for the progress bar)
+
+    } catch (error) {
+      console.error("Failed to connect to backend:", error);
+      toast({
+        title: "Connection Failed",
+        description: `Could not connect to the backend. Is it running on port 5001?`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -104,16 +139,44 @@ export function CombinedTestingInterface() {
       {/* Top Section: Test Generator and Stress Runner */}
       <div className="w-full grid grid-cols-2 gap-8">
         <div>
-          <TestGenerator />
+          <TestGenerator 
+            selectedCategories={selectedCategories}
+            onCategoryToggle={handleCategoryToggle}
+          />
         </div>
         <div>
           <StressRunner 
             isRunning={isRunning}
             onStartStop={handleStartStop}
+            modelUrl={modelUrl}
+            setModelUrl={setModelUrl}
+            apiKey={apiKey}
+            setApiKey={setApiKey}
             totalTests={totalTests}
             setTotalTests={setTotalTests}
           />
         </div>
+      </div>
+
+      <div className="w-full flex justify-center">
+        <Button
+          onClick={handleStartStop}
+          size="lg"
+          className="w-full max-w-4xl"
+          disabled={isRunning} // Disable the button while tests are running
+        >
+          {isRunning ? (
+            <>
+              <Pause className="h-4 w-4 mr-2" />
+              Running Tests...
+            </>
+          ) : (
+            <>
+              <Play className="h-4 w-4 mr-2" />
+              Run Stress Tests
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Bottom Section: Execution Status and Live Results */}
