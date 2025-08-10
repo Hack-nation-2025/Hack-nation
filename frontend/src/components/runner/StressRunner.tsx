@@ -19,7 +19,6 @@ interface StressRunnerProps {
   setTotalTests: Dispatch<SetStateAction<number>>;
 }
 
-
 export function StressRunner({
   modelUrl,
   setModelUrl,
@@ -39,9 +38,7 @@ export function StressRunner({
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4" />
-          </Button>
+          
         </div>
       </div>
 
@@ -57,6 +54,7 @@ export function StressRunner({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="model-url">Model URL</Label>
+
             <Input 
               id="model-url" 
               placeholder="https://api.openai.com"
@@ -78,14 +76,7 @@ export function StressRunner({
 
           <div className="space-y-2">
             <Label htmlFor="test-count">Test Count</Label>
-            <Input 
-              id="test-count" 
-              type="number" 
-              value={totalTests}
-              onChange={(e) => setTotalTests(Number(e.target.value))}
-              min="1"
-              max="1000"
-            />
+            <Input id="test-count" type="number" value={totalTests} onChange={e => setTotalTests(Number(e.target.value))} min="1" max="1000" />
           </div>
         </CardContent>
       </Card>
