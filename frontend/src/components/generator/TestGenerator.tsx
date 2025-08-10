@@ -9,16 +9,11 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Wand2, Plus, Trash2, Copy, Download, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-
-
 export function TestGenerator() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [customPrompt, setCustomPrompt] = useState("");
   const [generatedTests, setGeneratedTests] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-
-  
   const {
     toast
   } = useToast();
@@ -47,8 +42,6 @@ export function TestGenerator() {
     label: "Contradictory Instructions",
     description: "Conflicting commands and requests"
   }];
-        
-        
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev => prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId]);
   };

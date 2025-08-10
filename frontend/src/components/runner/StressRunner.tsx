@@ -7,16 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, Pause, Settings, Activity, Clock, AlertCircle, CheckCircle, Zap } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-
-// Define the structure of the props we expect from the parent component
-interface StressRunnerProps {
-  selectedCategories: string[];
-  setTestResults: (results: any) => void;
-}
-
+import { 
+  Play, 
+  Pause, 
+  Square, 
+  Settings,
+  Activity,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  Zap
+} from "lucide-react";
 
 interface StressRunnerProps {
   isRunning: boolean;
@@ -26,21 +27,18 @@ interface StressRunnerProps {
 }
 
 interface TestResult {
-  nodeid: string;
-  outcome: "passed" | "failed";
-  call: {
-    longrepr: string;
-    duration: number;
-  };
-  // We should add category to our backend response later
-  category?: string; 
+  id: string;
+  input: string;
+  output: string;
+  status: "success" | "failure" | "timeout";
+  responseTime: number;
+  errorType?: string;
 }
 
 export function StressRunner({ isRunning, onStartStop, totalTests, setTotalTests }: StressRunnerProps) {
   const [modelUrl, setModelUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const passedCount = results.filter(r => r.outcome === 'passed').length;
-  const failedCount = results.filter(r => r.outcome === 'failed').length;
+
 
   return (
     <div className="space-y-6">
@@ -101,17 +99,24 @@ export function StressRunner({ isRunning, onStartStop, totalTests, setTotalTests
         </CardContent>
       </Card>
 
+      {/* Run Tests Button */}
       <div className="w-full flex justify-center">
         <Button 
           onClick={onStartStop}
           variant={isRunning ? "destructive" : "secondary"}
           size="lg"
-          className="w-full max-w-4xl gap-2"
+          className="w-full max-w-4xl gap-2 shadow-primary hover:shadow-primary"
         >
-          {isPending ? (
-            <><Pause className="h-4 w-4" /><span>Running Tests...</span></>
+          {isRunning ? (
+            <>
+              <Pause className="h-4 w-4" />
+              Stop Tests
+            </>
           ) : (
-            <><Play className="h-4 w-4" /><span>Run Stress Tests</span></>
+            <>
+              <Play className="h-4 w-4" />
+              Run Stress Tests
+            </>
           )}
         </Button>
       </div>
