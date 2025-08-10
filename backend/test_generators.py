@@ -1,6 +1,18 @@
 # test_generators.py
 
+from dotenv import load_dotenv
+import os
+
 import random
+from openai import OpenAI
+
+
+load_dotenv()
+
+gpt = OpenAI(
+    api_key=os.getenv('GPT_API_KEY'),
+)
+
 
 #download and import the necessary libraries
 
@@ -37,17 +49,24 @@ def get_test_cases(categories: list[str]) -> list[dict]:
 
 def generate_malformed_json() -> list[str]:
     """
-    Returns a list of 5-10 broken JSON strings.
+    Returns a list of 10 broken JSON strings.
     """
     print("Generating: Malformed Inputs...")
-    return [
-        '{"name": "test", "value": 123,}',  # Extra comma
-        '{"name": "test" "value": 456}',    # Missing comma
-        '{"name": "test", "value": }',      # Missing value
-        '{"name": "test", "value": 123',    # Missing closing brace
-        '{name: "test", "value": 123}',     # Unquoted key
-        '["item1", "item2",, "item4"]',     # Extra comma in array
-    ]
+    
+    gpt_response = gpt.responses.create(
+        model='gpt-5-nano',
+        input="Generate a list of 10 malformed JSONs for stress testing an LLM. Only answer with the JSONs with each one on a new line. Add variety to the type of JSONs you provide."
+    )
+
+    if gpt_response.error is None: 
+        print("Warning: Error generating the list of malformed JSONs.")
+        return []
+    
+    response = gpt_response.output_text
+    
+    jsons = response.splitlines()
+    
+    return jsons
 
 # Register the new function
 GENERATOR_REGISTRY['malformed_json'] = generate_malformed_json
