@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CombinedTestingInterface } from "@/components/combined/CombinedTestingInterface";
 import { FailureAnalysis } from "@/components/analysis/FailureAnalysis";
@@ -15,7 +15,8 @@ const Index = () => {
       case "testing":
         return <CombinedTestingInterface />;
       case "analysis":
-        return <FailureAnalysis />;
+        // Pass the results data down to the analysis component
+        return <FailureAnalysis testResults={testResults} />;
       default:
         return <CombinedTestingInterface />;
     }
