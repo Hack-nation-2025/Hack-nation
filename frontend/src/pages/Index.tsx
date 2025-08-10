@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { TestGenerator } from "@/components/generator/TestGenerator";
-import { StressRunner } from "@/components/runner/StressRunner";
+import { CombinedTestingInterface } from "@/components/combined/CombinedTestingInterface";
 import { FailureAnalysis } from "@/components/analysis/FailureAnalysis";
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState("generator");
+  const [activeSection, setActiveSection] = useState("testing");
 
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
@@ -13,14 +12,12 @@ const Index = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case "generator":
-        return <TestGenerator />;
-      case "runner":
-        return <StressRunner />;
+      case "testing":
+        return <CombinedTestingInterface />;
       case "analysis":
         return <FailureAnalysis />;
       default:
-        return <TestGenerator />;
+        return <CombinedTestingInterface />;
     }
   };
 
