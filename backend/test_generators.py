@@ -49,6 +49,27 @@ def get_test_cases(categories: list[str]) -> list[dict]:
     
     return all_test_cases
 
+
+
+def generate_malformed_json(num_samples: int = 10) -> list[str]:
+    """
+    Returns a list of 10 broken JSON strings.
+    """
+    print("Generating: Malformed Inputs...")
+    
+    client = genai.Client(api_key=os.getenv('GPT_API_KEY'))
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", 
+        contents=f"Generate a list of {num_samples} malformed JSONs for stress testing an LLM. Only answer with the JSONs with each one on a new line. Add variety to the type of JSONs you provide."
+    )
+    
+    response_str: str = response.text 
+    
+    jsons = response_str.splitlines()
+    
+    return jsons
+
 # Register the new function
 GENERATOR_REGISTRY['malformed_json'] = generate_malformed_json
 
