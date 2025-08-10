@@ -20,7 +20,7 @@ def get_categories():
         {"id": "prompt_injection", "label": "Prompt Injection"},
         {"id": "malformed_json", "label": "Malformed JSON"},
         {"id": "textual_adversarial", "label": "Sentence Relationship"},
-        {"id": "mixed_languages", "label": "Mixed Languages"},
+        {"id": "multilingual", "label": "Mixed Languages"},
         {"id": "contradictory_instructions", "label": "Contradictory Instructions"}
     ])
 

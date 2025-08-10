@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 import random
-from google import genai
+import google.generativeai as genai
 
 
 load_dotenv()
@@ -33,20 +33,24 @@ def get_test_cases(categories: list[str]) -> list[dict]:
     for category in categories:
         if category in GENERATOR_REGISTRY:
             generator_func = GENERATOR_REGISTRY[category]
-            # Each test case is a dictionary containing the category and prompt
-            generated_cases_full = []
-            generated_cases = [
-                [
-                    {"category": category, "prompt": prompt} 
-                    for prompt in prompts
-                ]
-                for prompts in generator_func()
-            ]
-            generated_cases_full.extend(generated_cases)
-            all_test_cases.extend(generated_cases_full)
+            try:
+                # Each test case is a dictionary containing the category and prompt
+                prompts = generator_func()
+                if prompts and isinstance(prompts, list):
+                    for prompt in prompts:
+                        if prompt and isinstance(prompt, str):
+                            test_case = {"category": category, "prompt": prompt}
+                            all_test_cases.append(test_case)
+                        else:
+                            print(f"Warning: Invalid prompt format for category '{category}': {prompt}")
+                else:
+                    print(f"Warning: Generator for category '{category}' returned invalid format: {type(prompts)}")
+            except Exception as e:
+                print(f"Error generating test cases for category '{category}': {e}")
         else:
             print(f"Warning: No generator found for category '{category}'. Skipping.")
     
+    print(f"Generated {len(all_test_cases)} test cases for categories: {categories}")
     return all_test_cases
 
 
