@@ -80,11 +80,10 @@ def generate_contradictory_instructions(num_samples: int = 10) -> list[str]:
     """
     print("Generating: Contradictory Instructions...")
     
-    df = pd.read_parquet("hf://datasets/stanfordnlp/imdb/plain_text/train-00000-of-00001.parquet")
-    filtered_df = df[df["category"] == "contradictory"]
+    df = pd.read_parquet("hf://datasets/AI-Secure/adv_glue/adv_qnli/validation-00000-of-00001.parquet")    filtered_df = df[df["category"] == "contradictory"]
     samples = filtered_df.sample(num_samples).to_numpy(dtype=str)
     
-    result_prompts = [ samples[i, 0] + " " + samples[i, 1] for i in range(num_samples) ]
+    result_prompts = [ samples[i, 0] + "\n" + samples[i, 1] for i in range(num_samples) ]
     
     return result_prompts
 
@@ -104,7 +103,6 @@ def generate_textual_adversarial(num_samples: int = 10) -> list[str]:
     
     # Simulate sampling
     return prompts
-
 
 GENERATOR_REGISTRY['textual_adversarial'] = generate_textual_adversarial
 
