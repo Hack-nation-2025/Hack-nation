@@ -16,8 +16,7 @@ def get_categories():
     return jsonify([
         {"id": "prompt_injection", "label": "Prompt Injection"},
         {"id": "malformed_json", "label": "Malformed JSON"},
-        {"id": "unicode_attacks", "label": "Unicode Attacks"},
-        {"id": "long_inputs", "label": "Long Inputs"},
+        {"id": "textual_adversarial", "label": "Sentence Relationship"},
         {"id": "mixed_languages", "label": "Mixed Languages"},
         {"id": "contradictory_instructions", "label": "Contradictory Instructions"}
     ])
