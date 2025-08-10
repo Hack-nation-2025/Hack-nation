@@ -33,11 +33,16 @@ def get_test_cases(categories: list[str]) -> list[dict]:
         if category in GENERATOR_REGISTRY:
             generator_func = GENERATOR_REGISTRY[category]
             # Each test case is a dictionary containing the category and prompt
+            generated_cases_full = []
             generated_cases = [
-                {"category": category, "prompt": prompt} 
-                for prompt in generator_func()
+                [
+                    {"category": category, "prompt": prompt} 
+                    for prompt in prompts
+                ]
+                for prompts in generator_func()
             ]
-            all_test_cases.extend(generated_cases)
+            generated_cases_full.extend(generated_cases)
+            all_test_cases.extend(generated_cases_full)
         else:
             print(f"Warning: No generator found for category '{category}'. Skipping.")
     
