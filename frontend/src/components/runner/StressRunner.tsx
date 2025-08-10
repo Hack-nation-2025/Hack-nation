@@ -1,43 +1,33 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dispatch, SetStateAction } from "react";
 import { 
-  Play, 
-  Pause, 
-  Square, 
   Settings,
-  Activity,
-  Clock,
-  AlertCircle,
-  CheckCircle,
-  Zap
 } from "lucide-react";
 
 interface StressRunnerProps {
   isRunning: boolean;
   onStartStop: () => void;
+
+  modelUrl: string;
+  setModelUrl: Dispatch<SetStateAction<string>>;
+  apiKey: string;
+  setApiKey: Dispatch<SetStateAction<string>>;
   totalTests: number;
-  setTotalTests: (count: number) => void;
+  setTotalTests: Dispatch<SetStateAction<number>>;
 }
 
-interface TestResult {
-  id: string;
-  input: string;
-  output: string;
-  status: "success" | "failure" | "timeout";
-  responseTime: number;
-  errorType?: string;
-}
 
-export function StressRunner({ isRunning, onStartStop, totalTests, setTotalTests }: StressRunnerProps) {
-  const [modelUrl, setModelUrl] = useState("");
-  const [apiKey, setApiKey] = useState("");
+export function StressRunner({
+  modelUrl,
+  setModelUrl,
+  apiKey,
+  setApiKey,
+  totalTests,
+  setTotalTests,
+}: StressRunnerProps) {
 
 
   return (
@@ -60,15 +50,16 @@ export function StressRunner({ isRunning, onStartStop, totalTests, setTotalTests
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Configuration</span>
+            <span>LLM Configuration</span>
           </CardTitle>
+           <p className="text-sm text-muted-foreground pt-1">Enter the details for your target model.</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="model-url">Model URL</Label>
             <Input 
               id="model-url" 
-              placeholder="https://api.openai.com/v1/chat/completions"
+              placeholder="https://api.openai.com"
               value={modelUrl}
               onChange={(e) => setModelUrl(e.target.value)}
             />
@@ -80,7 +71,7 @@ export function StressRunner({ isRunning, onStartStop, totalTests, setTotalTests
               id="api-key" 
               type="password"
               placeholder="Enter your API key..."
-              value={apiKey}
+              value={apiKey} 
               onChange={(e) => setApiKey(e.target.value)}
             />
           </div>
@@ -98,28 +89,6 @@ export function StressRunner({ isRunning, onStartStop, totalTests, setTotalTests
           </div>
         </CardContent>
       </Card>
-
-      {/* Run Tests Button */}
-      <div className="w-full flex justify-center">
-        <Button 
-          onClick={onStartStop}
-          variant={isRunning ? "destructive" : "secondary"}
-          size="lg"
-          className="w-full max-w-4xl gap-2 shadow-primary hover:shadow-primary"
-        >
-          {isRunning ? (
-            <>
-              <Pause className="h-4 w-4" />
-              Stop Tests
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4" />
-              Run Stress Tests
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 }
