@@ -113,7 +113,7 @@ def generate_prompt_injection(num_samples: int = 10) -> list[str]:
     """
     Loads a subset of prompts containing prompt injection from a gpt.
     """
-    print(f"Generating: Safety & Policy (using {num_samples} samples)...")
+    print(f"Generating: Prompt injection (using {num_samples} samples)...")
     
     gpt = OpenAI(
         api_key=os.getenv('GPT_API_KEY'),
@@ -134,4 +134,32 @@ def generate_prompt_injection(num_samples: int = 10) -> list[str]:
     
     return prompts
 
-GENERATOR_REGISTRY['safety_policy'] = generate_prompt_injection
+GENERATOR_REGISTRY['prompt_injection'] = generate_prompt_injection
+
+
+def generate_multilingual(num_samples: int = 10) -> list[str]:
+    """
+    Loads a subset of prompts containing multiple languages.
+    """
+    print(f"Generating: Multilingual (using {num_samples} samples)...")
+    
+    gpt = OpenAI(
+        api_key=os.getenv('GPT_API_KEY'),
+    )
+    
+    gpt_response = gpt.responses.create(
+        model='gpt-5-nano',
+        input=f"Generate a list of {num_samples} LLM prompts containing multiple languages for stress testing an LLM. Use all languages that ChatGPT knows, including ones with different scripts. Only answer with the prompts with each one on a new line. An example prompt could be: Bonjour, my name is Jeanne and j'habite in France."
+    )
+
+    if gpt_response.error is None: 
+        print("Warning: Error generating the list of multilingual prompts.")
+        return []
+    
+    response = gpt_response.output_text
+    
+    prompts = response.splitlines()
+    
+    return prompts
+
+GENERATOR_REGISTRY['multilingual'] = generate_multilingual
